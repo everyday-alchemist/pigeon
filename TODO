@@ -1,5 +1,4 @@
 get sqlite involved
 refactor
-fix scrolling past bottom in non-full buffer
 make browse-url async
 read urls from config file

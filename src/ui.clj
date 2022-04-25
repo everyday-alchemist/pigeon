@@ -59,23 +59,24 @@
 
 (defn move [dir]
   ;; TODO: this is disgusting, write predicates to clean this up
-  (cond
-    (and (= :up dir) (not= 0 @active-line))
-    (swap! active-line dec)
-    (and (= :up dir) (= 0 @active-line) (not= 0 @offset))
-    (swap! offset dec)
-    (and (= :up dir) (= 0 @active-line) (= 0 @offset))
-    nil
-    (and (= :down dir) (= (dec (second @scr-size)) (count @buf)) (= @active-line (dec (count @buf))))
-    nil
-    (and (= :down dir) (not= (dec (second @scr-size)) @active-line))
-    (swap! active-line inc)
-    (and (= :down dir) (= (dec (second @scr-size)) @active-line) (not= (+ @active-line @offset) (dec (count @buf))))
-    (swap! offset inc)
-    (and (= :down dir) (= (dec (second @scr-size)) @active-line) (= (+ @active-line @offset) (dec (count @buf))))
-    nil
-    :else
-    nil)
+  (let [buf-size (count @buf)]
+    (cond
+      (and (= :up dir) (not= 0 @active-line))
+      (swap! active-line dec)
+      (and (= :up dir) (= 0 @active-line) (not= 0 @offset))
+      (swap! offset dec)
+      (and (= :up dir) (= 0 @active-line) (= 0 @offset))
+      nil
+      (and (= :down dir) (or (= (dec (second @scr-size)) buf-size) (= @active-line (dec buf-size))))
+      nil
+      (and (= :down dir) (not= (dec (second @scr-size)) @active-line) (< @active-line (dec buf-size)))
+      (swap! active-line inc)
+      (and (= :down dir) (= (dec (second @scr-size)) @active-line) (not= (+ @active-line @offset) (dec buf-size)))
+      (swap! offset inc)
+      (and (= :down dir) (= (dec (second @scr-size)) @active-line) (= (+ @active-line @offset) (dec buf-size)))
+      nil
+      :else
+      nil))
   (draw-buffer))
 
 (defn listen []
