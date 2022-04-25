@@ -1,4 +1,5 @@
+actions for different file types
 get sqlite involved
 refactor
 make browse-url async
-read urls from config file
+save cursor position when going back a menu?

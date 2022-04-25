@@ -6,8 +6,15 @@
 (def scr-size (atom []))
 (def offset (atom 0))
 (def active-line (atom 0))
-(def fg-color :black)
-(def bg-color :yellow)
+(def colors (atom {:fg-color :white
+                   :bg-color :black
+                   :fg-selected :black
+                   :bg-selected :yellow}))
+(def keymap (atom {\h :back
+                   \j :scroll-down
+                   \k :scroll-up
+                   \l :select
+                   \q :quit}))
 
 ;; buf is a list of strings representing the text on the screen, indexed by line number
 (def buf (atom []))
@@ -16,6 +23,13 @@
   (.setCursorVisible (.getTerminal @scr) false)
   (screen/stop @scr)
   (java.lang.System/exit 0))
+
+;; TODO: these can probably be removed but its late and I want to make this commit
+(defn set-colors [m]
+  (map #(swap! colors assoc % (get m %)) (keys m)))
+
+(defn set-keymap [m]
+  (map #(swap! keymap assoc % (get m %)) (keys m)))
 
 (defn reset-active []
   (reset! active-line 0))
@@ -52,8 +66,8 @@
          i 0]
     (when-not (empty? b)
       (screen/put-string @scr 0 i (pad-str (:text (first b)) (first @scr-size))
-                         {:fg (if (= i @active-line) fg-color :default)
-                          :bg (if (= i @active-line) bg-color :default)})
+                         {:fg (if (= i @active-line) (:fg-selected @colors) (:fg @colors))
+                          :bg (if (= i @active-line) (:bg-selected @colors) (:bg @colors))})
       (recur (rest b) (inc i))))
 
   (refresh))
@@ -81,17 +95,18 @@
   (draw-buffer))
 
 (defn listen []
-  (let [keypress (screen/get-key-blocking @scr)]
-    (case keypress
-      \h ((-> @buf
-              (nth (+ @active-line @offset))
-              (get :back)))
-      \j (move :down)
-      \k (move :up)
-      \l ((-> @buf
-              (nth (+ @active-line @offset))
-              (get :fn)))
-      \q (quit)
+  (let [keypress (screen/get-key-blocking @scr)
+        action (get @keymap keypress)]
+    (case action
+      :back        ((-> @buf
+                        (nth (+ @active-line @offset))
+                        (get :back)))
+      :scroll-down (move :down)
+      :scroll-up   (move :up)
+      :select      ((-> @buf
+                        (nth (+ @active-line @offset))
+                        (get :fn)))
+      :quit        (quit)
       :default)
     (listen)))
 
