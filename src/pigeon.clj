@@ -24,12 +24,13 @@
     (ui/->buffer name #(feed->buff name (fn [] (menu->buff))) #(ui/quit)))
   (ui/draw-buffer))
 
-(defn -main [& _]
+(defn -main [& conf-name]
   (let [conf-loc (if (System/getenv "XDG_CONFIG_HOME")
                    (System/getenv "XDG_CONFIG_HOME")
                    (System/getenv "HOME"))
-        conf (config/load-config (str conf-loc "/pigeon/config.edn"))]
-    (spit "log.txt" conf)
+        conf (if conf-name
+               (config/load-config (first conf-name))
+               (config/load-config (str conf-loc "/pigeon/config.edn")))]
     (doseq [url (:urls conf)]
       (add-feed url))
     (ui/set-colors (:colors conf))
