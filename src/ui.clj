@@ -6,8 +6,8 @@
 (def scr-size (atom []))
 (def offset (atom 0))
 (def active-line (atom 0))
-(def colors (atom {:fg-color :white
-                   :bg-color :black
+(def colors (atom {:fg :white
+                   :bg :black
                    :fg-selected :black
                    :bg-selected :yellow}))
 (def keymap (atom {\h :back
@@ -26,7 +26,8 @@
 
 ;; TODO: these can probably be removed but its late and I want to make this commit
 (defn set-colors [m]
-  (map #(swap! colors assoc % (get m %)) (keys m)))
+  (doseq [[k v] m]
+    (swap! colors assoc k v)))
 
 (defn set-keymap [m]
   (map #(swap! keymap assoc % (get m %)) (keys m)))
