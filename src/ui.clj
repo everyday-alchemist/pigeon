@@ -19,6 +19,9 @@
   (screen/stop @scr)
   (java.lang.System/exit 0))
 
+(defn reset-active []
+  (reset! active-line 0))
+
 (defn pad-str [s size]
   (if (<= (count s) size)
     (str s

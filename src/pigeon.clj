@@ -12,6 +12,7 @@
 
 (defn feed->buff [name back]
   (ui/clear-buffer)
+  (ui/reset-active)
   (let [entries (get-in @feeds [name :entries])]
     (doseq [entry entries]
       (ui/->buffer (:title entry) #(browse-url (:uri entry)) back)))
@@ -19,6 +20,7 @@
 
 (defn menu->buff []
   (ui/clear-buffer)
+  (ui/reset-active)
   (doseq [name (keys @feeds)]
     (ui/->buffer name #(feed->buff name (fn [] (menu->buff))) #(ui/quit)))
   (ui/draw-buffer))
