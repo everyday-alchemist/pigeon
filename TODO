@@ -1,5 +1,6 @@
 actions for different file types
 get sqlite involved
+build uberjar
 refactor
 make browse-url async
 save cursor position when going back a menu?
