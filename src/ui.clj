@@ -14,15 +14,6 @@
 ;; buf is a list of strings representing the text on the screen, indexed by line number
 (def buf (atom []))
 
-(defn fill-buff
-  "Helper function to put some junk data in the buffer"
-  []
-  (loop [i 0
-         n (rand-int 10000000)]
-    (when (< i 50)
-      (swap! buf conj {:text (str n) :fn #(println i)})
-      (recur (inc i) (rand-int 10000000)))))
-
 (defn quit []
   (.setCursorVisible (.getTerminal @scr) false)
   (screen/stop @scr)
@@ -39,28 +30,32 @@
 (defn refresh
   "wrap redraw so we hide the cursor every time
    Cursors? Where we're going we don't need cursors."
-  [scr]
-  (screen/redraw scr)
-  (.setCursorVisible (.getTerminal scr) false))
+  []
+  (screen/redraw @scr)
+  (.setCursorVisible (.getTerminal @scr) false))
+
+(defn ->buffer
+  [text f back]
+  (swap! buf conj {:text text :fn f :back back}))
+
+(defn clear-buffer
+  []
+  (reset! buf []))
 
 (defn draw-buffer
-  [scr b]
-  (screen/clear scr)
+  []
+  (screen/clear @scr)
 
   ;; TODO: This can probably be done without loop
-  (loop [b (drop @offset b)
+  (loop [b (drop @offset @buf)
          i 0]
     (when-not (empty? b)
-      (let [s (if (= i @active-line)
-                (pad-str (:text (first b)) (first @scr-size))
-                (:text (first b)))]
-        ;(println s)
-        (screen/put-string scr 0 i s
-                           {:fg (if (= i @active-line) fg-color :default)
-                            :bg (if (= i @active-line) bg-color :default)}))
+      (screen/put-string @scr 0 i (pad-str (:text (first b)) (first @scr-size))
+                         {:fg (if (= i @active-line) fg-color :default)
+                          :bg (if (= i @active-line) bg-color :default)})
       (recur (rest b) (inc i))))
 
-  (refresh scr))
+  (refresh))
 
 (defn move [dir]
   ;; TODO: this is disgusting, write predicates to clean this up
@@ -81,11 +76,14 @@
     nil
     :else
     nil)
-  (draw-buffer @scr @buf))
+  (draw-buffer))
 
 (defn listen []
   (let [keypress (screen/get-key-blocking @scr)]
     (case keypress
+      \h ((-> @buf
+              (nth (+ @active-line @offset))
+              (get :back)))
       \j (move :down)
       \k (move :up)
       \l ((-> @buf
@@ -108,10 +106,23 @@
   (let [entries (get-in @feeds [name :entries])]
     (doseq [entry entries]
       (swap! buf conj {:text (:title entry) :fn #(browse-url (:uri entry))})))
-  (draw-buffer @scr @buf))
+  (draw-buffer))
+
+(defn init-screen []
+  ;; TODO: this is buggy - junk data printed at top of terminal sometimes
+  (reset! scr (screen/get-screen :unix {:resize-listener (fn [x y]
+                                                           (reset! scr-size [x y])
+                                                           (when (> @active-line (dec y))
+                                                             (reset! active-line (dec y)))
+                                                           (draw-buffer))}))
+  (screen/start @scr)
+  (reset! scr-size (screen/get-size @scr))
+
+  (draw-buffer))
 
 (defn -main [& _]
   (add-sample-feeds)
+
   (doseq [name (keys @feeds)]
     (swap! buf conj {:text name :fn #(feed->buff name)}))
 
@@ -120,9 +131,9 @@
                                                            (reset! scr-size [x y])
                                                            (when (> @active-line (dec y))
                                                              (reset! active-line (dec y)))
-                                                           (draw-buffer @scr @buf))}))
+                                                           (draw-buffer))}))
   (screen/start @scr)
   (reset! scr-size (screen/get-size @scr))
 
-  (draw-buffer @scr @buf)
+  (draw-buffer)
   (listen))
