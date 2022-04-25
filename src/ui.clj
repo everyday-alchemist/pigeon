@@ -29,8 +29,12 @@
   (java.lang.System/exit 0))
 
 (defn pad-str [s size]
-  (str s
-       (.repeat " " (- size (count s)))))
+  (if (<= (count s) size)
+    (str s
+         (.repeat " " (- size (count s))))
+    (str
+     (subs s 0 (- size 3))
+     "...")))
 
 (defn refresh
   "wrap redraw so we hide the cursor every time
