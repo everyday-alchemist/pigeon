@@ -1,11 +1,9 @@
 (ns ui
-  (:require [clojure.java.browse :refer [browse-url]]
-            [lanterna.screen :as screen]
+  (:require [lanterna.screen :as screen]
             [rss]))
 
 (def scr (atom nil)) ;TODO: refactor to local?
 (def scr-size (atom []))
-(def feeds (atom {}))
 (def offset (atom 0))
 (def active-line (atom 0))
 (def fg-color :black)
@@ -97,21 +95,6 @@
       :default)
     (listen)))
 
-(defn add-feed [url]
-  (swap! feeds assoc url (rss/get-feed url)))
-
-(defn add-sample-feeds []
-  (add-feed "http://planet.clojure.in/atom.xml")
-  (add-feed "http://original.antiwar.com/feed")
-  (add-feed "https://greenwald.substack.com/feed"))
-
-(defn feed->buff [name]
-  (reset! buf [])
-  (let [entries (get-in @feeds [name :entries])]
-    (doseq [entry entries]
-      (swap! buf conj {:text (:title entry) :fn #(browse-url (:uri entry))})))
-  (draw-buffer))
-
 (defn init-screen []
   ;; TODO: this is buggy - junk data printed at top of terminal sometimes
   (reset! scr (screen/get-screen :unix {:resize-listener (fn [x y]
@@ -123,21 +106,3 @@
   (reset! scr-size (screen/get-size @scr))
 
   (draw-buffer))
-
-(defn -main [& _]
-  (add-sample-feeds)
-
-  (doseq [name (keys @feeds)]
-    (swap! buf conj {:text name :fn #(feed->buff name)}))
-
-  ;; TODO: this is buggy - junk data printed at top of terminal sometimes
-  (reset! scr (screen/get-screen :unix {:resize-listener (fn [x y]
-                                                           (reset! scr-size [x y])
-                                                           (when (> @active-line (dec y))
-                                                             (reset! active-line (dec y)))
-                                                           (draw-buffer))}))
-  (screen/start @scr)
-  (reset! scr-size (screen/get-size @scr))
-
-  (draw-buffer)
-  (listen))
