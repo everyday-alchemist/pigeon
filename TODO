@@ -1,6 +1,5 @@
 get sqlite involved
 refactor
 fix scrolling past bottom in non-full buffer
-implement going up a menu
 make browse-url async
 read urls from config file
