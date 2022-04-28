@@ -2,19 +2,32 @@
   (:require [clojure.java.browse :refer [browse-url]]
             [rss]
             [ui]
-            [config]))
+            [config])
+  (:import [java.text DateFormat]))
 
 (def feeds (atom {}))
 
 (defn add-feed [url]
   (swap! feeds assoc url (rss/get-feed url)))
 
+;; TODO: refactor to somewhere else
+(defn format-date [date]
+  ; change this to something more elegant
+  (when date
+    (let [s (.format (DateFormat/getDateInstance) date)]
+    (if (< (count s) 12)
+      (str s " ")
+      s))))
+
+;; TODO: This should be a ui function
 (defn feed->buff [name back]
   (ui/clear-buffer)
   (ui/reset-active)
   (let [entries (get-in @feeds [name :entries])]
     (doseq [entry entries]
-      (ui/->buffer (:title entry) #(browse-url (:uri entry)) back)))
+      (ui/->buffer (str (format-date (:published-date entry)) " " (:title entry))
+                   #(browse-url (:uri entry))
+                   back)))
   (ui/draw-buffer))
 
 (defn menu->buff []
