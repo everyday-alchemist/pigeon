@@ -11,10 +11,12 @@
                               \l :select
                               \q :quit}
 
-                     :ui     {:fg          :white
+                     :colors {:fg          :white
                               :bg          :black
                               :fg-selected :black
-                              :bg-selected :yellow}})
+                              :bg-selected :yellow}
+
+                     :terminal    :text})
 
 (defn load-config
   "read .edn from config file"

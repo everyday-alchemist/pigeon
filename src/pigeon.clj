@@ -35,8 +35,8 @@
       (add-feed url))
     (ui/set-colors (:colors conf))
     (ui/set-keymap (:keymap conf))
+    (ui/init-screen (:terminal conf))
 
-    (ui/init-screen)
     (menu->buff)
     ;; should probably refactor so this is called by ui (or make it its own thread)
     (ui/listen)))

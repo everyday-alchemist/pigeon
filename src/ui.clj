@@ -111,13 +111,13 @@
       :default)
     (listen)))
 
-(defn init-screen []
+(defn init-screen [term]
   ;; TODO: this is buggy - junk data printed at top of terminal sometimes
-  (reset! scr (screen/get-screen :unix {:resize-listener (fn [x y]
-                                                           (reset! scr-size [x y])
-                                                           (when (> @active-line (dec y))
-                                                             (reset! active-line (dec y)))
-                                                           (draw-buffer))}))
+  (reset! scr (screen/get-screen term {:resize-listener (fn [x y]
+                                                            (reset! scr-size [x y])
+                                                            (when (> @active-line (dec y))
+                                                              (reset! active-line (dec y)))
+                                                            (draw-buffer))}))
   (screen/start @scr)
   (reset! scr-size (screen/get-size @scr))
 
