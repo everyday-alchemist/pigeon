@@ -1,5 +1,5 @@
 (ns utils
- (:require [clojure.java.io :refer [input-stream output-stream copy]]))
+  (:require [clojure.java.io :refer [input-stream output-stream copy]]))
 
 (defn download [url]
   (with-open [in (input-stream url)

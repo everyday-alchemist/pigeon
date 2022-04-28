@@ -17,9 +17,9 @@
   ; change this to something more elegant
   (when date
     (let [s (.format (DateFormat/getDateInstance) date)]
-    (if (< (count s) 12)
-      (str s " ")
-      s))))
+      (if (< (count s) 12)
+        (str s " ")
+        s))))
 
 ;; TODO: This should be a ui function
 (defn feed->buff [name back]
