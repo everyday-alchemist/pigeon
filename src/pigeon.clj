@@ -1,6 +1,8 @@
 (ns pigeon
   (:require [clojure.java.browse :refer [browse-url]]
+            [clojure.string :as string]
             [rss]
+            [utils]
             [ui]
             [config])
   (:import [java.text DateFormat]))
@@ -25,9 +27,12 @@
   (ui/reset-active)
   (let [entries (get-in @feeds [name :entries])]
     (doseq [entry entries]
-      (ui/->buffer (str (format-date (:published-date entry)) " " (:title entry))
-                   #(browse-url (:uri entry))
-                   back)))
+      (let [action (if (string/includes? (:type entry) "audio")
+                     #(utils/download (:uri entry))
+                     #(browse-url (:uri entry)))]
+        (ui/->buffer (str (format-date (:published-date entry)) " " (:title entry))
+                     action
+                     back))))
   (ui/draw-buffer))
 
 (defn menu->buff []

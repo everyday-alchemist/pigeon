@@ -1,4 +1,10 @@
-(ns utils)
+(ns utils
+ (:require [clojure.java.io :refer [input-stream output-stream copy]]))
+
+(defn download [url]
+  (with-open [in (input-stream url)
+              out (output-stream "file")]
+    (copy in out)))
 
 ;; TODO: is this even necessary anymore?
 (defn superimpose
