@@ -1,6 +1,8 @@
-actions for different file types
-get sqlite involved
+integrate integrant
+load feeds from db first
+allow deletion of feeds/entries
+make things asynchronous
 build uberjar
-refactor
-make browse-url async
+graalvm
+make configurable actions for different file types
 save cursor position when going back a menu?
