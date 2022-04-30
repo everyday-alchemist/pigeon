@@ -4,13 +4,19 @@
             [rss]
             [utils]
             [ui]
-            [config])
+            [config]
+            [db])
   (:import [java.text DateFormat]))
 
 (def feeds (atom {}))
 
 (defn add-feed [url]
-  (swap! feeds assoc url (rss/get-feed url)))
+  (let [feed (rss/get-feed url)]
+    (db/insert-feed-if-unique  url)
+    (db/insert-entry-if-unique {:title (:title feed)
+                                :uri (:uri feed)
+                                :feed_url url})
+    (swap! feeds assoc url feed)))
 
 ;; TODO: refactor to somewhere else
 (defn format-date [date]
@@ -27,7 +33,7 @@
   (ui/reset-active)
   (let [entries (get-in @feeds [name :entries])]
     (doseq [entry entries]
-      (let [action (if (string/includes? (:type entry) "audio")
+      (let [action (if (and (:type entry) (string/includes? (:type entry) "audio"))
                      #(utils/download (:uri entry))
                      #(browse-url (:uri entry)))]
         (ui/->buffer (str (format-date (:published-date entry)) " " (:title entry))
@@ -49,6 +55,7 @@
         conf (if conf-name
                (config/load-config (first conf-name))
                (config/load-config (str conf-loc "/pigeon/config.edn")))]
+    (db/create-tables)
     (doseq [url (:urls conf)]
       (add-feed url))
     (ui/set-colors (:colors conf))

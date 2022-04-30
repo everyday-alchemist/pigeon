@@ -1,3 +1,6 @@
-{:paths ["src"]
+{:paths ["src" "resources"]
  :deps {clojure-lanterna/clojure-lanterna {:mvn/version "0.9.7"}
+        com.h2database/h2 {:mvn/version "1.4.199"}
+        com.github.seancorfield/honeysql {:mvn/version "2.2.891"}
+        com.github.seancorfield/next.jdbc {:mvn/version "1.2.780"}
         remus/remus {:mvn/version "0.2.2"}}}
