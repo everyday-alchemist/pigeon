@@ -1,8 +1,12 @@
+use a thread pool or something to dispatch threads
+make download location configurable
+probably need another refactoring to make it truly MVC - need more stuff moved to control, too much in model
 integrate integrant
-load feeds from db first
+integrate db
 allow deletion of feeds/entries
 make things asynchronous
 build uberjar
 graalvm
 make configurable actions for different file types
 save cursor position when going back a menu?
+expand config possibilities
