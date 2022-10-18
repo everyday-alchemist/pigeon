@@ -109,7 +109,6 @@
       nil))
   (redraw))
 
-; TODO: should we be wrapping all this?
 (defn get-key []
   (get @keymap
        (view/get-key-blocking @screen)))
@@ -127,13 +126,11 @@
   (view/start-screen @screen)
   (reset! screen-size (view/get-size @screen))
   (view/clear-screen @screen)
-  ;; probably need update feed function
   (let [conf-loc (if (System/getenv "XDG_CONFIG_HOME")
                  (System/getenv "XDG_CONFIG_HOME")
                  (System/getenv "HOME"))
       conf (if (first conf-name)
              (config/load-config (first conf-name))
              (config/load-config (str conf-loc "/pigeon/config.edn")))]
-    ;; TODO: should thread be moved around get-feed and db/instert-feed in model.clj?
     (doseq [url (:urls conf)]
       (add-feed url))))

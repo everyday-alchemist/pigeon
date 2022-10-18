@@ -6,7 +6,6 @@
               out (output-stream "file")]
     (copy in out)))
 
-;; TODO: is this even necessary anymore?
 (defn superimpose
   [from to]
   (reduce (fn [acc k]
