@@ -1,7 +1,6 @@
-(ns config
+(ns everyday-chemist.config
   (:require [clojure.java.io :as io]
-            [clojure.edn :as edn]
-            [utils]))
+            [clojure.edn :as edn]))
 
 (def default-config {:urls   ["http://planet.clojure.in/atom.xml"]
 
@@ -24,7 +23,7 @@
   (try
     (let [user-conf (with-open [r (io/reader source)]
                       (edn/read (java.io.PushbackReader. r)))]
-      (utils/superimpose user-conf default-config))
+      (merge default-config user-conf))
 
     (catch java.io.IOException e
       (printf "Couldn't open pigeon config '%s': %s\n" source (.getMessage e))

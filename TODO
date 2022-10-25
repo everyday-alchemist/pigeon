@@ -10,3 +10,5 @@ graalvm
 make configurable actions for different file types
 save cursor position when going back a menu?
 expand config possibilities
+Investigate why remus doesn't give us all the channel properties
+make pull feed testable by taking feed input from remus parse-url/parse-file so we can test by parsing xml file
