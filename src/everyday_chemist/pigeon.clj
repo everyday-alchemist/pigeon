@@ -5,15 +5,19 @@
             [everyday-chemist.view :as v])
   (:gen-class))
 
+(defn quit []
+  (v/stop)
+  (System/exit 0))
+
 (defn listen
   []
   (let [action (v/get-key-blocking)]
     (case action
-      ;:back        (v/back)
-      \j (v/move :down)
-      \k   (v/move :up)
-      ;:select      (v/select)
-      ;:quit        (v/quit)
+      ;:back   (v/back)
+      \j       (v/move :down)
+      \k       (v/move :up)
+      ;:select (v/select)
+      \q       (quit)
       nil))
   (listen))
 
@@ -32,5 +36,6 @@
     (doseq [url urls]
       (m/update-feed url (-> url
                              (remus/parse-url)
-                             (get :feed))))
-    (listen)))
+                             (get :feed)))))
+  ;; TODO: why does it hang if I move the listen call inside the let
+  (listen))
