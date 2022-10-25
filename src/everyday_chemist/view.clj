@@ -12,7 +12,7 @@
 (defonce current-menu (atom :main-menu))
 (defonce active-line (atom 0))
 (defonce offset (atom 0))
-(defonce screen (s/get-screen :swing))
+(defonce screen (s/get-screen :text))
 (defonce colors  {:fg          :white
                   :bg          :black
                   :fg-selected :black
