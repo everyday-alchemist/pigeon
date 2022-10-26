@@ -72,7 +72,7 @@
   ;; TODO: this is disgusting, write predicates to clean this up
   (let [buffer (if (= :main-menu @current-menu)
                  @m/feeds
-                 (get @m/feeds @current-menu))
+                 (get-in @m/feeds [@current-menu :entries]))
         buf-size (count buffer)]
     (cond
       (and (= :up dir) (not= 0 @active-line))
