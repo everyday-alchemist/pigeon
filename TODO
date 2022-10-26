@@ -1,14 +1,13 @@
-use a thread pool or something to dispatch threads
-make download location configurable
-probably need another refactoring to make it truly MVC - need more stuff moved to control, too much in model
 integrate integrant
+use ordered set for feed entries
+fix model tests
+do some ui testing
+make download location configurable
+save cursor position when going back a menu
+graalvm
+expand config possibilities
+make configurable actions for different file types
+use a thread pool or something to dispatch threads
+investigate why remus doesn't give us all the channel properties
 integrate db
 allow deletion of feeds/entries
-make things asynchronous
-build uberjar
-graalvm
-make configurable actions for different file types
-save cursor position when going back a menu?
-expand config possibilities
-Investigate why remus doesn't give us all the channel properties
-make pull feed testable by taking feed input from remus parse-url/parse-file so we can test by parsing xml file
