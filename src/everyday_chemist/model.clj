@@ -1,10 +1,10 @@
-(ns everyday-chemist.model
-  (:require [clojure.set :refer [union]]))
+(ns everyday-chemist.model)
 
 ;; feeds are of form {"" : [{},{},...]} 
 (defonce feeds (atom {}))
 (defonce listeners (atom #{}))
 
+;; TODO: is this what agents are for?
 (defn register-listener
   "Listeners should be functions that 1 argument to be called when feeds is updated"
   [l]
@@ -16,12 +16,8 @@
   (doseq [l @listeners]
     (l)))
 
+;; TODO: find a way to only add new entries to the feed
 (defn update-feed
   [url f]
-  (let [old-entries (get-in @feeds [url :entries])
-        new-entries (get f :entries)
-        comb-entries (union (set old-entries) (set new-entries))
-        new-feed (assoc f :entries comb-entries)
-        comb-feed (merge (get @feeds url) new-feed)]
-    (swap! feeds assoc url comb-feed)
-    (execute-listeners)))
+  (swap! feeds assoc url f)
+  (execute-listeners))
