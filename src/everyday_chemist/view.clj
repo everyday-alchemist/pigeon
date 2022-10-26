@@ -16,6 +16,14 @@
                   :fg-selected :black
                   :bg-selected :yellow})
 
+(defn reset-state []
+  (s/stop screen)
+  (reset! screen-size [0 0])
+  (reset! current-menu :main-menu)
+  (reset! active-line 0)
+  (reset! offset 0)
+  (s/start screen))
+
 (defn fmt-line
   "line: line to format
    max-len: maximum length of line 
