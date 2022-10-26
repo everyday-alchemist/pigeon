@@ -13,11 +13,11 @@
   []
   (let [action (v/get-key-blocking)]
     (case action
-      ;:back   (v/back)
-      \j       (v/move :down)
-      \k       (v/move :up)
-      ;:select (v/select)
-      \q       (quit)
+      \h (v/back)
+      \j (v/move :down)
+      \k (v/move :up)
+      \l (v/select)
+      \q (quit)
       nil))
   (listen))
 
@@ -37,5 +37,4 @@
       (m/update-feed url (-> url
                              (remus/parse-url)
                              (get :feed)))))
-  ;; TODO: why does it hang if I move the listen call inside the let
   (listen))

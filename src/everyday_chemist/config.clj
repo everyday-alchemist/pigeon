@@ -15,7 +15,9 @@
                               :fg-selected :black
                               :bg-selected :yellow}
 
-                     :terminal    :text})
+                     :terminal    :text
+                     
+                     :download-directory "/home/matt/projects/pigeon/downloads"})
 
 (defn load-config
   "read .edn from config file"

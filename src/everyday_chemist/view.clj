@@ -1,12 +1,10 @@
 (ns everyday-chemist.view
   (:require [lanterna.screen :as s]
-            [everyday-chemist.model :as m]))
-
-(defn redraw
-  [s]
-  ;; TODO: threading macro?
-  (s/redraw s)
-  (.setCursorVisible (.getTerminal s) false))
+            [clojure.core.async :as a]
+            [clojure.java.browse :refer [browse-url]]
+            [clojure.string :as string]
+            [everyday-chemist.model :as m]
+            [everyday-chemist.utils :as utils]))
 
 (defonce screen-size (atom [0 0]))
 (defonce current-menu (atom :main-menu))
@@ -50,6 +48,12 @@
   (s/redraw screen)
   (.setCursorVisible (.getTerminal screen) false))
 
+;; TODO: remember position in main-menu
+(defn back []
+  (reset! current-menu :main-menu)
+  (reset! active-line 0)
+  (refresh))
+
 (defn move [dir]
   ;; TODO: this is disgusting, write predicates to clean this up
   (let [buffer (if (= :main-menu @current-menu)
@@ -74,6 +78,20 @@
       :else
       nil))
   (refresh))
+
+(defn select []
+  (if (= :main-menu @current-menu) 
+    (let [selection (nth (keys @m/feeds) (+ @active-line @offset))] 
+      (reset! active-line 0)
+      (reset! offset 0)
+      (reset! current-menu selection)
+      (refresh))
+    ;; TODO: downloading / browsing needs to be more robust
+    (let [selection (nth (get-in @m/feeds [@current-menu :entries]) (+ @active-line @offset))
+          enclosure (first (get selection :enclosures))] ; TODO: download all enclosures?
+      (if (and enclosure (:type enclosure) (string/includes? (:type enclosure) "audio"))
+        (a/thread (utils/download (:url enclosure)))
+        (browse-url (:uri selection))))))
 
 (defn stop []
   (s/stop screen))
