@@ -43,15 +43,21 @@
   []
   (let [buffer (if (= @current-menu :main-menu)
                  (keys @m/feeds)
-                 (map :title (get @m/feeds @current-menu)))]
+                 (map :title (get-in @m/feeds [@current-menu :entries])))]
     (s/clear screen)
     (loop [b (drop @offset buffer)
            i 0]
-      (when-not (empty? b)
+      ;; if we still have strings, write them to the screen, else write blank line
+      (if b
         (s/put-string screen 0 i (fmt-line (first b) (first @screen-size))
                            {:fg (if (= i @active-line) (:fg-selected colors) (:fg colors))
                             :bg (if (= i @active-line) (:bg-selected colors) (:bg colors))})
-        (recur (rest b) (inc i)))))
+        (s/put-string screen 0 i (fmt-line "" (first @screen-size))
+                      {:fg (:fg colors)
+                       :bg (:bg colors)}))
+      ;; continue looping until reaching the max line on screen
+      (when (< i (second @screen-size)) 
+        (recur (next b) (inc i)))))
 
   (s/redraw screen)
   (.setCursorVisible (.getTerminal screen) false))
