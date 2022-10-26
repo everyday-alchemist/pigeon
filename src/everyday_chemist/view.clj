@@ -10,7 +10,7 @@
 (defonce current-menu (atom :main-menu))
 (defonce active-line (atom 0))
 (defonce offset (atom 0))
-(defonce screen (s/get-screen :text))
+(def screen (s/get-screen :text))
 (defonce colors  {:fg          :white
                   :bg          :black
                   :fg-selected :black
@@ -106,6 +106,7 @@
   (s/get-key-blocking screen))
 
 (defn init []
+  ; TODO: find out why this causes swing term to hang
   (s/add-resize-listener screen handle-resize)
   (s/start screen)
   (reset! screen-size (s/get-size screen))
