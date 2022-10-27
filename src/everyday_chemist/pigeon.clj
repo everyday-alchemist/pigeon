@@ -1,5 +1,6 @@
 (ns everyday-chemist.pigeon
   (:require [remus]
+            [integrant.core :as ig]
             [everyday-chemist.model :as m]
             [everyday-chemist.config :as config]
             [everyday-chemist.view :as v])
@@ -21,11 +22,9 @@
       nil))
   (listen))
 
-
 (defn -main
   ;; TODO: come up with a more graceful way to handle command line args
   [& conf-name]
-  (v/init)
   (let [conf-loc (if (System/getenv "XDG_CONFIG_HOME")
                    (System/getenv "XDG_CONFIG_HOME")
                    (System/getenv "HOME"))
@@ -33,6 +32,7 @@
                (config/load-config (first conf-name))
                (config/load-config (str conf-loc "/pigeon/config.edn")))
         urls (get conf :urls)]
+    (ig/init {:view/screen {:term :swing}})
     (doseq [url urls]
       (m/update-feed url (-> url
                              (remus/parse-url)

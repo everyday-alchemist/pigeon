@@ -1,5 +1,6 @@
 (ns everyday-chemist.view
   (:require [lanterna.screen :as s]
+            [integrant.core :as ig]
             [clojure.core.async :as a]
             [clojure.java.browse :refer [browse-url]]
             [clojure.string :as string]
@@ -10,19 +11,19 @@
 (defonce current-menu (atom :main-menu))
 (defonce active-line (atom 0))
 (defonce offset (atom 0))
-(def screen (s/get-screen :text))
+(defonce screen (atom nil))
 (defonce colors  {:fg          :white
                   :bg          :black
                   :fg-selected :black
                   :bg-selected :yellow})
 
 (defn reset-state []
-  (s/stop screen)
+  (s/stop @screen)
   (reset! screen-size [0 0])
   (reset! current-menu :main-menu)
   (reset! active-line 0)
   (reset! offset 0)
-  (s/start screen))
+  (s/start @screen))
 
 (defn fmt-line
   "line: line to format
@@ -44,23 +45,23 @@
   (let [buffer (if (= @current-menu :main-menu)
                  (keys @m/feeds)
                  (map :title (get-in @m/feeds [@current-menu :entries])))]
-    (s/clear screen)
+    (s/clear @screen)
     (loop [b (drop @offset buffer)
            i 0]
       ;; if we still have strings, write them to the screen, else write blank line
       (if b
-        (s/put-string screen 0 i (fmt-line (first b) (first @screen-size))
+        (s/put-string @screen 0 i (fmt-line (first b) (first @screen-size))
                            {:fg (if (= i @active-line) (:fg-selected colors) (:fg colors))
                             :bg (if (= i @active-line) (:bg-selected colors) (:bg colors))})
-        (s/put-string screen 0 i (fmt-line "" (first @screen-size))
+        (s/put-string @screen 0 i (fmt-line "" (first @screen-size))
                       {:fg (:fg colors)
                        :bg (:bg colors)}))
       ;; continue looping until reaching the max line on screen
       (when (< i (second @screen-size)) 
         (recur (next b) (inc i)))))
 
-  (s/redraw screen)
-  (.setCursorVisible (.getTerminal screen) false))
+  (s/redraw @screen)
+  (.setCursorVisible (.getTerminal @screen) false))
 
 ;; TODO: remember position in main-menu
 (defn back []
@@ -108,7 +109,7 @@
         (browse-url (:uri selection))))))
 
 (defn stop []
-  (s/stop screen))
+  (s/stop @screen))
 
 (defn handle-resize [x y]
   (reset! screen-size [x y])
@@ -117,11 +118,15 @@
   (refresh))
 
 (defn get-key-blocking []
-  (s/get-key-blocking screen))
+  (s/get-key-blocking @screen))
 
-(defn init []
-  ; TODO: find out why this causes swing term to hang
-  (s/add-resize-listener screen handle-resize)
-  (s/start screen)
-  (reset! screen-size (s/get-size screen))
-  (m/register-listener refresh))
+(defmethod ig/init-key :view/screen [_ {:keys [term]}]
+  (reset! screen (s/get-screen term {:resize-listener handle-resize}))
+  (s/start @screen)
+  (reset! screen-size (s/get-size @screen))
+  (m/register-listener refresh)
+  (refresh)
+  screen)
+
+(defmethod ig/halt-key! :view/screen [_ screen]
+  (s/stop @screen))
