@@ -1,4 +1,4 @@
-integrate integrant
+make view stateless
 use ordered set for feed entries
 fix model tests
 do some ui testing
